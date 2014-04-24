@@ -1396,7 +1396,7 @@
   <searchComponent class="solr.SpellCheckComponent" name="suggest">
     <lst name="spellchecker">
       <str name="name">suggest</str>
-      <str name="classname">org.apache.solr.spelling.suggest.Suggester</str>
+      <str name="classname">org.DD2476.SuggesterMK2</str>
       <str name="lookupImpl">org.apache.solr.spelling.suggest.tst.TSTLookupFactory</str>
       <!-- Alternatives to lookupImpl: 
            org.apache.solr.spelling.suggest.fst.FSTLookupFactory   [finite state automaton]
