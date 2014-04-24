@@ -1,3 +1,12 @@
+#################
+## Project Specific
+#################
+
+# Search index
+project/solr/solr/collection1/data/
+
+project/solr/logs/
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
