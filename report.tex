@@ -1,3 +1,10 @@
+
+\documentclass[12pt]{article}
+\usepackage[left=3.5cm, right=3.5cm]{geometry} % margins for title page. changed below.
+\usepackage{fancyvrb} 
+\DefineShortVerb{\|} % verbatim code formatting. example: |void foo();|
+\usepackage{setspace} % spacing
+
 \title{Better Query Completion}
 
 \author{
@@ -13,23 +20,35 @@ Martin Runelöv (mrunelov@kth.se)
 }
 \date{\today}
 
-\documentclass[12pt]{article}
-
 \begin{document}
 \maketitle
 \thispagestyle{empty}
-\pagebreak
+%\pagebreak
 \thispagestyle{empty}
 \mbox{}
-\newpage
+%\newpage
 \setcounter{page}{1}
+
+\newgeometry{right=2.5cm,left=2.5cm} % Set LR margins for the rest of the document
 
 \input{sections/abstract.tex}
 \pagebreak
 \thispagestyle{empty}
 \mbox{}
-\newpage
+%\newpage
+
+\doublespacing % more spacing in TOC
+\tableofcontents
+\singlespacing % turn off double spacing
+\pagebreak
+
 \input{sections/introduction.tex}
+
+\input{sections/background.tex}
+
+\input{sections/method.tex}
+
+\input{sections/results.tex}
 
 \input{sections/conclusions.tex}
 
