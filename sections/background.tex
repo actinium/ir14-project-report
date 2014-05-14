@@ -1,4 +1,53 @@
 \section{Background}\label{background}
 
+The original purpose of query completion was to help people with physical disabilities improve their typing speed (Tam, C. \& Wells, D. (2009). Evaluating the Benefits of Displaying Word Prediction Lists on a Personal Digital Assistant at the Keyboard Level. Assistive Technology, 21, 105-114.). It later evolved to incorporate a lot more and today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing has autocomplete implemented (https://www.google.se/ , www.bing.com ). Popular text editors and IDEs such as Sublime Text and Eclipse also implements this feature (https://www.eclipse.org/ , http://www.sublimetext.com/).
+
+Word prediction software often include a learning aspect of the queries or words being searched for. By analysing the queries the software can statistically determine popular and unpopular search terms in order to provide more accurate predictions.
+
+The efficiency of query completion can be based on the length of the words typed compared to the length of the suggested queries. The users choice can also be taken into consideration, i.e if the user chooses to search with a suggested query or write their own after getting the suggestions.
 
 \subsection{Previous work}\label{previouswork}
+
+Predicting words is not a trivial thing to do and currently there is extensive research being conducted in this field. This research can vary from implementing an efficient prediction of words to implementing a semantically consistent prediction sequence. Often it is desirable to have an implementation that is both efficient in terms of query processing and response time as well as semantically consistent predictions in order to give the user both fast and correct predictions. This is what most research papers today aims to explore with the emphasis being placed on producing semantically consistent suggestions [Qiaozhu Mei, Dengyong Zhou, and Kenneth Church. 2008. Query suggestion using hitting time. In Proceedings of the 17th ACM conference on Information and knowledge management (CIKM '08). ACM, New York, NY, USA, 469-478] 
+[Silviu Cucerzan and Ryen W. White. 2007. Query suggestion based on user landing pages. In Proceedings of the 30th annual international ACM SIGIR conference on Research and development in information retrieval (SIGIR '07). ACM, New York, NY, USA, 875-876].
+
+\subsection{Apache Solr}
+
+Apache Solr is an open source free text search platform written in Java. It runs as a standalone search server within a servlet container. It has a REST-like API that supports HTTP requests with e.g. XML and JSON. It is designed to be highly customizable, allowing for easy customization through its configuration files.
+[https://lucene.apache.org/solr/]
+
+Consider for instance that we have a document that looks like the following:
+
+\begin{verbatim}
+<add>
+  <doc>
+    <field name="id">SP2514N</field>
+    <field name="name">Samsung SpinPoint P120 SP2514N - hard drive - 250 GB - ATA-133</field>
+    <field name="manu">Samsung Electronics Co. Ltd.</field>
+  </doc>
+  ...
+</add>
+\end{verbatim}
+
+Let us further assume that we store the document on the server and want to retrieve it using solr queries. For instance, we can do this by retrieving all documents containing the word ''samsung'' in the field ''name'', in which case the query would look like:
+
+\begin{verbatim}
+http://localhost:8983/solr/collection1/select?q=name:samsung
+\end{verbatim}
+
+Which should return the above sample document if it currently indexed in the document set\footnote{Called a core in Solr terminology} |collection1| and the server is currently running on the local host.
+
+A few things to note about the Solr implementation: First, all documents indexed must be flat, i.e. all  field must be immediate children of the |<doc>| tag and the document may not be arbitrarily nested. Second, the returned results is highly dependent on how the server is configured. The above example for instance assumes that the contents of the field “name” is tokenized using whitespace as delimiters and that each resulting token is lowercased. The contents of the field “id” on the other hand may be specified not to use either whitespace tokenization or transforming the tokens to lower case, in which case only the exact query would match the above document:
+
+\begin{verbatim}
+http://localhost:8983/solr/collection1/select?q=id:SP2514N
+\end{verbatim}
+
+
+
+
+
+
+
+
+
