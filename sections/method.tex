@@ -6,7 +6,7 @@ In this section the different components of the project are described. It gives 
 
 As previously mentioned, Apache Solr has built-in support for free text search. It is contained in the class org.apache.solr.spelling.suggest.Suggester and is configured in the file solrconfig.xml.. In order to implement our query suggestion, a new class, SuggesterMK2, has been implemented which piggybacks on the existing functionality of the original Suggester class.\cite{SUGGESTER}
 
-The SuggesterMK2 implementation attempts to be a drop-in replacement for the Suggester class. Notable exceptions to this general rule include:
+The |SuggesterMK2| implementation attempts to be a drop-in replacement for the Suggester class. Notable exceptions to this general rule include:
 \begin{itemize}
 
 \item The |SuggesterMK2| uses the query parameter |spellcheck.q| instead of the parameter |q|
