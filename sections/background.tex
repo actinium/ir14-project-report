@@ -1,16 +1,14 @@
 \section{Background}\label{background}
 
-The original purpose of query completion was to help people with physical disabilities improve their typing speed (Tam, C. \& Wells, D. (2009). Evaluating the Benefits of Displaying Word Prediction Lists on a Personal Digital Assistant at the Keyboard Level. Assistive Technology, 21, 105-114.). It later evolved to incorporate a lot more and today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing (https://www.google.se/ , www.bing.com ) as well as popular text editors and IDEs such as Sublime Text and Eclipse has query completion implemented (https://www.eclipse.org/ , http://www.sublimetext.com/).
+The original purpose of query completion was to help people with physical disabilities improve their typing speed \cite{TAM}. It later evolved to incorporate a lot more and today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing \cite{GOOG, BING} as well as popular text editors and IDEs such as Sublime Text and Eclipse has query completion implemented \cite{ECLIPSE, SUBLIME}.
 
 \subsection{Previous work}\label{previouswork}
 
-Predicting words is not a trivial thing to do and currently there is extensive research being conducted in this field. This research can vary from implementing an efficient prediction of words to implementing a semantically consistent prediction sequence. Often it is desirable to have an implementation that is both efficient in terms of query processing and response time as well as semantically consistent predictions in order to give the user both fast and correct predictions. This is what most research papers today aims to explore with the emphasis being placed on producing semantically consistent suggestions [Qiaozhu Mei, Dengyong Zhou, and Kenneth Church. 2008. Query suggestion using hitting time. In Proceedings of the 17th ACM conference on Information and knowledge management (CIKM '08). ACM, New York, NY, USA, 469-478] 
-[Silviu Cucerzan and Ryen W. White. 2007. Query suggestion based on user landing pages. In Proceedings of the 30th annual international ACM SIGIR conference on Research and development in information retrieval (SIGIR '07). ACM, New York, NY, USA, 875-876]. 
+Predicting words is not a trivial thing to do and currently there is extensive research being conducted in this field. This research can vary from implementing an efficient prediction of words to implementing a semantically consistent prediction sequence. Often it is desirable to have an implementation that is both efficient in terms of query processing and response time as well as semantically consistent predictions in order to give the user both fast and correct predictions. This is what most research papers today aims to explore with the emphasis being placed on producing semantically consistent suggestions \cite{MEI, CUCERZAN}. 
 
 \subsection{Apache Solr}
 
-Apache Solr is an open source free text search platform written in Java. It runs as a standalone search server within a servlet container. It has a REST-like API that supports HTTP requests with e.g. XML and JSON. It is designed to be highly customizable, allowing for easy customization through its configuration files.
-[https://lucene.apache.org/solr/]
+Apache Solr is an open source free text search platform written in Java. It runs as a standalone search server within a servlet container. It has a REST-like API that supports HTTP requests with e.g. XML and JSON. It is designed to be highly customizable, allowing for easy customization through its configuration files \cite{SOLR}.
 
 Consider for instance that we have a document that looks like the following:
 
