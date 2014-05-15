@@ -10,26 +10,26 @@ Predicting words is not a trivial thing to do and currently there is extensive r
 
 Apache Solr is an open source free text search platform written in Java. It runs as a standalone search server within a servlet container. It has a REST-like API that supports HTTP requests with e.g. XML and JSON. It is designed to be highly customizable, allowing for easy customization through its configuration files \cite{SOLR}.
 
-Consider for instance that we have a document that looks like the following:
+Consider that we have a document that looks like the following:
 
 \begin{verbatim}
 <add>
   <doc>
     <field name="id">SP2514N</field>
-    <field name="name">Samsung SpinPoint P120 SP2514N - hard drive - 250 GB</field>
+    <field name="name">Samsung SpinPoint P120 SP2514N</field>
     <field name="manu">Samsung Electronics Co. Ltd.</field>
   </doc>
   ...
 </add>
 \end{verbatim}
 
-Let us further assume that we store the document on the server and want to retrieve it using solr queries. For instance, we can do this by retrieving all documents containing the word ''samsung'' in the field ''name'', in which case the query would look like:
+Let us further assume that we store the document on the server and want to retrieve it using Solr queries. For instance, we can do this by retrieving all documents containing the word ''samsung'' in the field ''name'', in which case the query would look like:
 
 \begin{verbatim}
 http://localhost:8983/solr/collection1/select?q=name:samsung
 \end{verbatim}
 
-Which should return the above sample document if it currently indexed in the document set\footnote{Called a core in Solr terminology} |collection1| and the server is currently running on the local host.
+\noindent which should return the above sample document if it currently indexed in the document set\footnote{Called a core in Solr terminology} |collection1| and the server is currently running on the local host.
 
 A few things to note about the Solr implementation: First, all documents indexed must be flat, i.e. all  field must be immediate children of the |<doc>| tag and the document may not be arbitrarily nested. Second, the returned results is highly dependent on how the server is configured. The above example for instance assumes that the contents of the field “name” is tokenized using whitespace as delimiters and that each resulting token is lowercased. The contents of the field “id” on the other hand may be specified not to use either whitespace tokenization or transforming the tokens to lower case, in which case only the exact query would match the above document:
 
@@ -37,7 +37,7 @@ A few things to note about the Solr implementation: First, all documents indexed
 http://localhost:8983/solr/collection1/select?q=id:SP2514N
 \end{verbatim}
 
-but the following query would not match the above document:
+\noindent but the following query would not match the above document:
 
 \begin{verbatim}
 http://localhost:8983/solr/collection1/select?q=id:sp2514n
@@ -51,7 +51,7 @@ Solr comes with a built in suggester implementation, for instance performing a q
 http://localhost:8983/solr/collection1/suggest?sp
 \end{verbatim}
 
-will return suggestions consisting of all words beginning with ‘’sp’’ using word from the indexed documents. Which field to use to draw suggestions can be specified by setting a parameter in the configuration file solrconfig.xml. Thus, in principle one can retrieve suggestions from different fields with the current suggester implementation by creating multiple suggesters, one for each field, and querying these independently.
+\noindent will return suggestions consisting of all words beginning with ‘’sp’’ using word from the indexed documents. Which field to use to draw suggestions can be specified by setting a parameter in the configuration file solrconfig.xml. Thus, in principle one can retrieve suggestions from different fields with the current suggester implementation by creating multiple suggesters, one for each field, and querying these independently.
 
 
 
