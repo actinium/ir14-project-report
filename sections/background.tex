@@ -31,17 +31,7 @@ http://localhost:8983/solr/collection1/select?q=name:samsung
 
 \noindent which should return the above sample document if it is currently indexed in the document set\footnote{Called a core in Solr terminology} |collection1| and the server is currently running on the local host.
 
-A few things to note about the Solr implementation: First, all documents indexed must be flat, i.e. all  field must be immediate children of the |<doc>| tag and the document may not be arbitrarily nested. Second, the returned results is highly dependent on how the server is configured. The above example for instance assumes that the contents of the field “name” is tokenized using whitespace as delimiters and that each resulting token is lowercased. The contents of the field “id” on the other hand may be specified not to use either whitespace tokenization or transforming the tokens to lower case, in which case only the exact query would match the above document:
-
-\begin{verbatim}
-http://localhost:8983/solr/collection1/select?q=id:SP2514N
-\end{verbatim}
-
-\noindent but the following query would not match the above document:
-
-\begin{verbatim}
-http://localhost:8983/solr/collection1/select?q=id:sp2514n
-\end{verbatim}
+A few things to note about the Solr implementation: First, all documents indexed must be flat, i.e. all  field must be immediate children of the |<doc>| tag and the document may not be arbitrarily nested. Second, the returned results is highly dependent on how the server is configured. The above example for instance assumes that the contents of the field ''name'' is tokenized using whitespace as delimiters and that each resulting token is lowercased. The contents of the field ''id'' on the other hand may be specified not to use either whitespace tokenization or transforming the tokens to lower case, in which case the query |q=id:SP2514N| would match the above document, but |q=id:sp2514n| would not.
 
 Much of the work in setting up a Solr server thus lie in specifying sensible types for the document contents, such that the server allows the user to select the documents they are looking for. In the above for instance it might make sense to distinguish between ''SP2514N'' and ''sp2514n'' as these might refer to different documents, but not to distinguish between ''Samsung'' and ''samsung''.
 
