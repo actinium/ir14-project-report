@@ -1,4 +1,4 @@
-\section{Introduction}
+\section{Introduction}\label{introduction}
 Query completion, or autocomplete, is a feature commonly seen in web browsers, email clients, source code editors and other programs that provides search capabilities to the user. The core principle in query completion is to predict what the user is typing and give suggestions based on that prediction. If the prediction is correct it will speed up typing and may also help the user find the words to express what he or she is searching for. 
 
 Apache Solr is the most popular enterprise search engine as of April 2014\cite{ranking} and is used by many prominent services such as Netflix, The Guardian, AOL and Instagram (http://wiki.apache.org/solr/PublicServers, 2014-04-29). It supports many advanced features for searching, among which query completion is one. A central part of Solr is the concept of fields. A field can be for example a name, category or price. Documents are organized based on such fields and it is possible to do field queries to find all documents where a field is set to a specific value. For a more advanced user, this is a key concept that greatly enhances the users capabilities of finding the right documents, especially when the search domain is known. 
@@ -10,9 +10,10 @@ Despite fields being such a powerful tool when searching, the query completion i
 The aim of this project is to implement a module for Apache Solr that complements the current query completion in Solr so that it supports field querying. The goal is that the user should be able to get query completion for field names in the following manner:
 
 \begin{enumerate}
-\item If the user types ''|aut|'', and there is a field called author in the schema, the module will suggest |author:()|. 
-\item If the user types ''|author:(Joan|'', and there is a document authored by Joanne Kathleen Rowling, the module will suggest ''|author:(Joanne)|'' and ''|author:(Joanne Kathleen Rowling)|''
+\item If the user types |aut|, and there is a field called author in the schema, the module will suggest |author:()|. 
+\item If the user types |author:"Joan|, and there is a document authored by Joanne Kathleen Rowling, the module will suggest |author:"Joanne"| and |author:"Joanne Kathleen Rowling"|
 \end{enumerate}
+
 
 The results in the examples above may vary depending on how the solr server is configured. For example, in the second example, only one of the two might be returned, depending on whether the field contents are tokenized or not. 
 
