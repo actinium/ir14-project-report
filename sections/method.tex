@@ -4,8 +4,7 @@ In this section the different components of the project are described. It gives 
 
 \subsection{Implementation}
 
-As previously mentioned, Apache Solr has built-in support for free text search. It is contained in the class org.apache.solr.spelling.suggest.Suggester and is configured in the file solrconfig.xml.. In order to implement our query suggestion, a new class, SuggesterMK2, has been implemented which piggybacks on the existing functionality of the original Suggester class.
-[http://wiki.apache.org/solr/Suggester]
+As previously mentioned, Apache Solr has built-in support for free text search. It is contained in the class org.apache.solr.spelling.suggest.Suggester and is configured in the file solrconfig.xml.. In order to implement our query suggestion, a new class, SuggesterMK2, has been implemented which piggybacks on the existing functionality of the original Suggester class.\cite{SUGGESTER}
 
 The SuggesterMK2 implementation attempts to be a drop-in replacement for the Suggester class. Notable exceptions to this general rule include:
 \begin{itemize}
@@ -18,12 +17,12 @@ The rationale for these seemingly arbitrary decisions will be stated explicitly 
 
 \subsubsection{Delegation}
 
-The |SuggesterMK2| implementation uses the delegation pattern |http://en.wikipedia.org/wiki/Delegation_pattern| in order to reuse the original suggester implementation as much as possible. Reusing the original Suggester class means that we can use the original implementations query suggestion implementation, as well as its loading and reloading implementations, all of which we can assume work and would be distinctly tricky to implement from scratch.
+The |SuggesterMK2| implementation uses the delegation pattern\cite{DELEGATE} in order to reuse the original suggester implementation as much as possible. Reusing the original Suggester class means that we can use the original implementations query suggestion implementation, as well as its loading and reloading implementations, all of which we can assume work and would be distinctly tricky to implement from scratch.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{img/delegation.png}
-    \caption{Representation of the delegation done by SuggesterMK2}
+    \caption{Illustration of the delegation used by SuggesterMK2. The suggester will give suggestions drawn from author and author\_fulltext for the field author, and suggestions from the fields desc and desc\_case\_sensitive for the field desc.}
     \label{fig:delegation}
 \end{figure}
 
@@ -39,10 +38,10 @@ Let us for instance say that we configure the system to give suggestions for the
 
 The fields we use for contents do not need to include the target field – we can use the contents from entirely different fields to use as suggestions. For a sample use case where this might be desired, consider what would happen if the target field were 4-gram tokenized: a word like ''parallelize'' would then be split up into the tokens ''para'', ''aral'', ''rall'', ''alle'', and so on, none of which we want to give as query suggestions. We would then want to draw suggestions from some other field where the contents are tokenized as words instead.
 
-The |SuggesterMK2| implementation also gives query suggestions consisting of the field names it is configured to give suggestions for. For instance, the example configuration in figure \ref{delegation} the |SuggesterMK2| would give |author:”| as a query suggestion when the user types |aut|.
+The |SuggesterMK2| implementation also gives query suggestions consisting of the field names it is configured to give suggestions for. For instance, the example configuration in figure \ref{fig:delegation} the |SuggesterMK2| would give |author:”| as a query suggestion when the user types |aut|.
 
 For the full configuration of the suggester in solrconfig.xml, see Appendix.
-For the implementation of the SuggesterMK2, see [https://github.com/actinium/ir14-project.git]
+For the implementation of the SuggesterMK2, see \cite{GITHUBPROJ}.
 
 \subsubsection{Order of results}
 
