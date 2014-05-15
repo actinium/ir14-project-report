@@ -60,11 +60,11 @@
 
 \begin{verbatim}
   <!-- ir14 -->
-    <searchComponent class=''solr.SpellCheckComponent'' name=''suggest''>
-    <lst name=''spellchecker''>
-    <str name=''name''>suggest</str>
-    <str name=''classname''>org.DD2476.SuggesterMK2</str>
-    <str name=''lookupImpl''>org.apache.solr.spelling.suggest.tst.TSTLookupFactory</str>
+    <searchComponent class="solr.SpellCheckComponent" name="suggest">
+    <lst name="spellchecker">
+    <str name="name">suggest</str>
+    <str name="classname">org.DD2476.SuggesterMK2</str>
+    <str name="lookupImpl">org.apache.solr.spelling.suggest.tst.TSTLookupFactory</str>
 
         <!--
         Define delimiters to use for splitting queries into
@@ -72,12 +72,12 @@
         return results using the same delimiter as in the query.
         If no delimiter is used in the query, but a delimiter is to
         be returned, the first delimiter specified below is used.
-        If no delimiter is specified, :'' is used.
+        If no delimiter is specified, :" is used.
     -->
-    <str name=''delimiter''>:''</str>
-    <str name=''endDelimiter''>''</str>
+    <str name="delimiter">:"</str>
+    <str name="endDelimiter">"</str>
 
-        <!--
+    <!--
     Define suggesters for the fields you want to enable auto
     completion for. Requires a target field, ie. the name of the
     field that is sent in the query. If a source field is
@@ -89,38 +89,38 @@
 
     Example:
 
-    <lst name=''delegate''>
-        <str name=''targetField''>author</str>
-        <str name=''sourceField''>author</str>
-        <str name=''sourceField''>author_ir14_auto_complete</str>
+    <lst name="delegate">
+        <str name="targetField">author</str>
+        <str name="sourceField">author</str>
+        <str name="sourceField">author_ir14_auto_complete</str>
     </lst>
 
     The above will allow the user to get query completion for the 
     field author and will fetch suggestions from the fields     author and author_ir14_aut_complete.
     -->
-    <lst name=''delegate''>
-          <str name=''targetField''>name</str>
-          <str name=''sourceField''>name</str>
-          <str name=''sourceField''>name_ir14_auto_complete</str>
+    <lst name="delegate">
+          <str name="targetField">name</str>
+          <str name="sourceField">name</str>
+          <str name="sourceField">name_ir14_auto_complete</str>
     </lst>
 
-    <lst name=''delegate''>
-          <str name=''targetField''>party</str>
-          <str name=''sourceField''>party</str>
+    <lst name="delegate">
+          <str name="targetField">party</str>
+          <str name="sourceField">party</str>
     </lst>
 
-    <lst name=''delegate''>
-          <str name=''targetField''>birthyear</str>
-          <str name=''sourceField''>birthyear</str>
+    <lst name="delegate">
+          <str name="targetField">birthyear</str>
+          <str name="sourceField">birthyear</str>
     </lst>
 
-     <lst name=''delegate''>
-          <str name=''targetField''>block</str>
-          <str name=''sourceField''>block</str>
+     <lst name="delegate">
+          <str name="targetField">block</str>
+          <str name="sourceField">block</str>
      </lst>
      
-    <float name=''threshold''>0.005</float>
-    <str name=''buildOnCommit''>true</str>
+    <float name="threshold">0.005</float>
+    <str name="buildOnCommit">true</str>
     </lst>
   </searchComponent>
 \end{verbatim}

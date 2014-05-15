@@ -1,58 +1,48 @@
 \section{Discussion}\label{discussion}
 
-\subsection{Encountered issues}
+In this section we discuss issues encountered, design descisions and unimplemented ideas.
 
-Several issues were encountered while implementing the solution and these are described in the following sections. 
-
-\subsubsection{Syntactical issues}
+\subsection{Syntactical issues}
 
 A number of symbols are considered special characters when they occur in a query. These include\cite{QUERY}:
 \begin{verbatim}
 + - && || ! ( ) { } [ ] ^ " ~ * ? : \
 \end{verbatim}
 
-As a consequence of how the Solr request dispatch system is implemented, a query passed to Solr will be tokenized using the above characters as delimiters (except hyphen-minus), as well as on whitespace before being passed on to system modules like a suggester.
-Consequently a sample query on the form: |author:"simon| will automatically be split into: |[author, simon]|
+As a consequence of how the Solr request dispatch system is implemented, a query passed to Solr will be tokenized using the above characters and whitespace as delimiters (except hyphen-minus), before being passed on to system modules like a suggester.
+Consequently a sample query on the form: |author:"simon| will automatically be split into |[author, simon]|
 before being handed over to the suggester implementation.
-Taking whitespace into account as well as a query on the form: |author:"simon AND text:"foo"| will automatically be split into the following: |[author, simon, AND, text, foo]|.
+Taking whitespace into account as well as a query on the form: |author:"simon AND text:"foo"| will automatically be split into |[author, simon, AND, text, foo]|.
 Furthermore, while the order of the tokens seem to be preserved in practice, the documentation does not guarantee this.
 
-The specifics of the tokenization can be changed in the Solr configuration by setting the |queryAnalyzerFieldType| in |solrconfig.xml|. Contrary to what is stated in the documentation though, Solr does not seem to actually respect the value of this field when tokenizing queries passed to the relevant component. This behaviour is present as of the currently penultimate version of Solr (version 4.7.2).
+The specifics of tokenization should be configurable by setting the |queryAnalyzerFieldType| in |solrconfig.xml|. Contrary to what is stated in the documentation however, Solr does not seem to actually respect the value of this field when tokenizing queries. This behaviour is present as of the currently penultimate version of Solr (version 4.7.2).
 
 This particular issue can be circumvented by creating a custom parameter or by piggybacking on the Solr spellchecker implementation and using its custom |spellcheck.q| parameter instead (as the original query suggester implementation already does).
 This parameter uses a tokenizer based on the type of the first defined parameter of name "field" in the definition of the component.\cite{FIELDTYPE}
-Tokenization on special characters can be turned off simply by not defining any parameter called ‘’field’’ in the suggesters definition. This of course necessitates us to use some other way to specify which field to give query suggestions for, which is why we use the delegate syntax.
+Tokenization on special characters can be turned off simply by not defining any parameter called ''field'' in the suggesters definition. This of course necessitates us to use some other way to specify which field to give query suggestions for, which is why we use the delegate syntax.
 
-Using |spellcheck.q| removes tokenization on special characters, but still performs whitespace delimited tokenization. There does not appear to exist any simple way to avoid this phenomenon since it is already done by the point the suggester is given tokens. Also, the Lucene query parser for the original Solr query suggester does not respect phrase queries (i.e. not doing whitespace delimited tokenization when given queries surrounded by quotation marks). Thus while there might exist ways to avoid whitespace delimited tokenization, it does not appear possible with a drop-in replacement for the query suggester currently present in Solr.
+Using |spellcheck.q| removes tokenization on special characters, but still performs whitespace delimited tokenization. There does not appear to exist any simple way to avoid this phenomenon since it is already done by the point the suggester is given tokens. Furthermore, the Lucene query parser for the original Solr query suggester does not respect phrase queries (i.e. not doing whitespace delimited tokenization when given queries surrounded by quotation marks). Thus, while there might exist ways to avoid whitespace delimited tokenization, it does not appear possible with a drop-in replacement for the query suggester currently present in Solr.
 
-To sum up, the least amount of tokenization that the drop-in replacement query suggester can get is: |author:"simon AND text:"foo"| being converted to: |[author:"simon, AND, text:"foo"]|, but, as already stated, the order of the tokens is not guaranteed to be preserved.
+To sum up, the least amount of tokenization that the drop-in replacement query suggester can get is |author:"simon AND text:"foo"| being converted to |[author:"simon, AND, text:"foo"]|, but, as already stated, the order of the tokens is not guaranteed to be preserved.
 
 That whitespace delimited tokenization is unavoidable does not pose any obstacles to doing single word completion, of course, but it might make a multi word query completion implementation distinctly non-trivial. 
 
-\subsubsection{Interpreting an unfinished query}
+\subsection{Interpreting an unfinished query}
 
-An unfinished query might be interpretable in multiple ways, for instance, the query: |author:"simon AND text:"foo| can either be interpreted as the intersection of two unfinished queries or as a search for the string ''simon AND text:'' in the field author and the string foo in any field. Another interpretation is to simply ignore the fact that the user has not closes the first field query and only supply suggestions for the string ''foo'' in the field text. 
+An unfinished query might be interpretable in multiple ways, for instance, the query |author:"simon AND text:"foo| can either be interpreted as the intersection of two unfinished queries or as a search for the string ''simon AND text:'' in the field author and the string foo in any field. Another interpretation is to simply ignore the fact that the user has not closes the first field query and only supply suggestions for the string ''foo'' in the field text. 
 
-When implementing multi-word query completion one might take the previous word into account when completing the next one. E.g. when completing the query: |author:"simon s| we might want to give priority to |author:"simon stenström"| over for instance |author:"simon simon"|.
+When implementing multi-word query completion one might take the previous word into account when completing the next one. E.g. when completing the query |author:"simon s| we might want to give priority to |author:"simon stenström"| over for instance |author:"simon simon"|.
 
-This can in general be done using n-grams, but to our knowledge there are no tools in Solr for doing such tokenization\footnote{Note that the n-gram feature present in Solr is conceptually distinct from what we want here: it performs searches on letter n-grams which is useful for non-wordspaced languages like Chinese. What we require is word n-grams.}, and implementing this would be far outside the scope of this project. In the particular case, however, when for instance "Simon Stenström" is an actual value of the field "author" then one can do this kind of full field content completion quite simply by changing the type of the field "author" to some string based type that does not do whitespace tokenization (a better solution for the |SuggesterMK2| is to delegate to two fields that use different tokenization, which would yield both word and full text completion. Solr can be configured to copy field contents to other fields at indexing, by using so called copy fields, which means that the documents do not have to be alterated.).
-However particular care must be exercised when considering what should happen when we attempt to query complete on a query on the form: |author:"simon s| as opposed to: |author:"sim| since the second query will readily be completed into either "simon" or "simon stenström" depending on the type of the field author, but the first will automatically be split into: |[author:"simon, s]| before we get our hands on it. We can of course disregard the second token and simply give suggestions on the first one, but then would also get completions like ''simon lundgren''.
+This can in general be done using \emph{n}-grams, but to our knowledge there are no tools in Solr for doing such tokenization\footnote{The \emph{n}-gram feature in Solr is not what we want here: it performs searches on letter \emph{n}-grams, which is useful for non-wordspaced languages like Chinese. What we require is word \emph{n}-grams.}, and implementing this would be far outside the scope of this project. In the particular case, however, when for instance "Simon Stenström" is an actual value of the field "author" then one can do this kind of full field content completion quite simply by changing the type of the field "author" to some string based type that does not do whitespace tokenization. With the delegate design of |SuggesterMK2| this is easily solved.
 
-In our implementation, we join the two tokens. This is based on the assumption that the order of the tokens has not been changed by the query parser, which as mentioned before seems to be the case in practice but is not guaranteed. 
+In our implementation, we join the tokens. This is based on the assumption that the order of the tokens has not been changed by the query parser, which as mentioned before seems to be the case in practice but is not guaranteed. 
 
 
 \subsection{Need for configuration}
 
-The way the design is made you need to configure the ||SuggesterMK2|| for each field that you want to provide query completion for. This gives great flexibility in what fields should be available for suggestions, which has many advantages. For example, you might want to limit access to some fields because they are not interesting from a user perspective. For some fields you might want to enforce tokenization on white space, if a field contains several rows of text you will want to return single words rather than the whole content.  Another advantage is the possibility to prevent query completion for fields that could contain sensitive information, thereby providing some security for the system.
+The delegate design provides great flexibility in what fields should be available for suggestions, which has many advantages. For example, you might want to limit access to some fields because they are not interesting from a user perspective. For some fields you might want to enforce tokenization on white space, if a field contains several rows of text you will want to return single words rather than the whole content.  Another advantage is the possibility to prevent query completion for fields that could contain sensitive information, thereby providing a degree of security for the system.
 
-Despite the advantages, special configuration for each field can seem a bit tedious. It is important to keep in mind though that Solr is often used for rather domain specific tasks, (e.g. Netflix or Instagram) and as such the number of fields that you’d want query completion for is also rather low. Therefore, the configuration is not really a problem.  
-
-\subsection{Weighting between standard free text query completion and field query completion}
-
-In this implementation, standard query completion (i.e. completion on actual content) is used in conjunction with field completion. If the |SuggesterMK2| is configured to provide suggestions for many fields, the field completion might overshadow the ordinary query completion results.
-It is therefore of interest to consider if and how weighting should be done between standard and field completion. One way to counteract such behaviour would be to only match fields after a certain amount of characters have been entered, or when the match has reached a certain confidence level (e.g. edit distance).
-
-In our implementation, suggestion for field names are always at the top. This is based on the fact that, as mention earlier,  Solr is rather domain-specific and therefore the likelihood of having so many fields that it causes problems is low.
+Despite the advantages, special configuration for each field might seem tedious. It is important to keep in mind that Solr is often used for rather domain specific tasks, (e.g. Netflix or Instagram) and as such the number of fields that you’d want query completion for tend to be rather low. Therefore, the configuration should not be a problem.
 
 \subsection{Unimplemented ideas}
 
@@ -61,7 +51,7 @@ In this section, a few unimplemented ideas are mentioned and difficulties with i
 \subsubsection{Intersection queries}
 
 A good suggester iteratively builds a query, taking all previous text into account. This requires the suggester to construct queries along the way and then apply new filters to this original query as they are added. For example, for the query: |block:"Left" AND name:"p| we might only want to show name suggestions for left-wing members of parliament, otherwise we would actually suggest queries for which the search result would be empty.
-However the original suggester implementation does not support intersection, and so we would have to manually remove inapplicable suggestion results (i.e. names of non-left-wing members of parliament in the above example) and adjusting the ranking of the results, as the ranking depends on the number of occurrences of the suggested words in the results. While this is most likely feasible, we consider this to fall well beyond the scope of this project.
+However the original suggester implementation does not support intersection, and so we would have to manually remove inapplicable suggestion results (i.e. names of non-left-wing members of parliament in the above example) and adjusting the ranking of the results, as the ranking depends on the number of occurrences of the suggested words in the results. While this is most likely feasible, we consider this to fall beyond the scope of this project.
 
 \subsubsection{Query completion for AND and OR}
 

@@ -1,6 +1,6 @@
 \section{Background}\label{background}
 
-The original purpose of query completion was to help people with physical disabilities improve their typing speed \cite{TAM}. It later evolved to incorporate a lot more and today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing \cite{GOOG, BING} as well as popular text editors and IDEs such as Sublime Text and Eclipse have query completion implemented \cite{ECLIPSE, SUBLIME}.
+The original purpose of query completion was to help people with physical disabilities improve their typing speed \cite{TAM}. Today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing \cite{GOOG, BING} as well as popular text editors and IDEs such as Sublime Text and Eclipse have query completion implemented \cite{ECLIPSE, SUBLIME}.
 
 \subsection{Previous work}\label{previouswork}
 
@@ -23,7 +23,7 @@ Consider that we have a document that looks like the following:
 </add>
 \end{verbatim}
 
-Let us further assume that we store the document on the server and want to retrieve it using Solr queries. For instance, we can do this by retrieving all documents containing the word ''samsung'' in the field ''name'', in which case the query would look like:
+Let us further assume that we store the document on the server and want to retrieve it using Solr queries. For instance, we can do this by retrieving all documents containing the word ''samsung'' in the field ''name'', in which case the query would look like the following:
 
 \begin{verbatim}
 http://localhost:8983/solr/collection1/select?q=name:samsung
@@ -31,9 +31,9 @@ http://localhost:8983/solr/collection1/select?q=name:samsung
 
 \noindent which should return the above sample document if it is currently indexed in the document set\footnote{Called a core in Solr terminology} |collection1| and the server is currently running on the local host.
 
-A few things to note about the Solr implementation: First, all documents indexed must be flat, i.e. all  field must be immediate children of the |<doc>| tag and the document may not be arbitrarily nested. Second, the returned results is highly dependent on how the server is configured. The above example for instance assumes that the contents of the field ''name'' is tokenized using whitespace as delimiters and that each resulting token is lowercased. The contents of the field ''id'' on the other hand may be specified not to use either whitespace tokenization or transforming the tokens to lower case, in which case the query |q=id:SP2514N| would match the above document, but |q=id:sp2514n| would not.
+A few things to note about the Solr implementation: First, all documents indexed must be flat, i.e. all  field must be immediate children of the |<doc>| tag and the document may not be arbitrarily nested. Second, the returned results is highly dependent on how the server is configured. The above example for instance assumes that the contents of the field ''name'' are tokenized using whitespace as delimiters and that each resulting token is lowercased. The contents of the field ''id'' on the other hand may be specified not to use either whitespace tokenization or transforming the tokens to lower case, in which case the query |q=id:SP2514N| would match the above document, but |q=id:sp2514n| would not.
 
-Much of the work in setting up a Solr server thus lie in specifying sensible types for the document contents, such that the server allows the user to select the documents they are looking for. In the above for instance it might make sense to distinguish between ''SP2514N'' and ''sp2514n'' as these might refer to different documents, but not to distinguish between ''Samsung'' and ''samsung''.
+Much of the work in setting up a Solr server thus lie in specifying sensible types for the fields of the documents, such that the server allows the user to select the documents they are looking for. In the above example it might make sense to distinguish between ''SP2514N'' and ''sp2514n'' as these might refer to different documents, but not to distinguish between ''Samsung'' and ''samsung''.
 
 Solr comes with a built in suggester implementation, for instance performing a query:
 
@@ -41,10 +41,5 @@ Solr comes with a built in suggester implementation, for instance performing a q
 http://localhost:8983/solr/collection1/suggest?sp
 \end{verbatim}
 
-\noindent will return suggestions consisting of all words beginning with ‘’sp’’ using word from the indexed documents. Which field to use to draw suggestions can be specified by setting a parameter in the configuration file solrconfig.xml. Thus, in principle one can retrieve suggestions from different fields with the current suggester implementation by creating multiple suggesters, one for each field, and querying these independently.
-
-
-
-
-
+\noindent will return suggestions consisting of all words beginning with ''sp'' using words from the indexed documents. Which field to use to draw suggestions can be specified by setting a parameter in the configuration file solrconfig.xml. Thus, in principle one can retrieve suggestions from different fields with the current suggester implementation by creating multiple suggesters, one for each field, and querying these independently.
 
