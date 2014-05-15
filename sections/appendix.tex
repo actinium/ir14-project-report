@@ -1,1 +1,128 @@
+\newpage
 \section*{Appendix}\label{appendix}
+
+\subsection*{Sample queries}
+\begin{tabular}{ r | l}
+    Query & Completion suggestions \\    
+    \hline                    
+    & \\
+  |n| & |name:"| \\
+      & |nilsson| \\
+      & |näringsminister| \\
+      & |näringsminister annie lööf| \\
+      & |nina larsson| \\
+      & |nina lundström| \\
+      & |nylander| \\
+      & |nylund| \\
+      & \\
+    \hline
+    & \\
+  |name:"d| & |name:"désirée| \\
+            & |name:"david lång| \\
+            & |name:"douglas| \footnotesize{(note: surname)}\\
+            & |name:"désirée liljevall| \\
+            & |name:"désirée pethrus| \\
+            & \\
+    \hline
+    & \\
+    |name:"désirée p| & |name:"désirée pethrus| \\
+    & \\
+    \hline
+    & \\
+    |name:"foo" AND name:"d| & |name:"foo" AND name:"désirée| \\
+                           & |name:"foo" AND name:"david lång| \\
+                           & |name:"foo" AND name:"douglas| \\
+                           & |name:"foo" AND name:"désirée liljevall| \\
+                           & |name:"foo" AND name:"désirée pethrus| \\
+                           & \\
+    \hline
+    |name:"foo" AND name:"désirée p| & |name:"foo" AND name:"désirée pethrus| \\
+\end{tabular}
+
+\begin{tabular}{ r | l}
+|name:"nina AND p| & (No results since there are no words in the data \\ & beginning with the exact phrase |nina AND p|) \\
+\hline
+|name:"nina" AND p| & |name:"nina" AND party:"| \\
+                    & |name:"nina" AND patrik björck| \\
+                    & |name:"nina" AND peter eriksson| \\
+                    & |name:"nina" AND peter persson| \\
+                    & |name:"nina" AND pia hallström| \\
+                    & |name:"nina" AND pia nilsson| \\
+                    & |name:"nina" AND polfjärd| \\
+                    & |name:"nina" AND pyry| \\
+                    &  \hspace{66pt} \vdots 
+\end{tabular}
+
+
+\newpage
+
+\subsection*{solrconfig.xml additions}
+
+\begin{verbatim}
+  <!-- ir14 -->
+    <searchComponent class=''solr.SpellCheckComponent'' name=''suggest''>
+    <lst name=''spellchecker''>
+    <str name=''name''>suggest</str>
+    <str name=''classname''>org.DD2476.SuggesterMK2</str>
+    <str name=''lookupImpl''>org.apache.solr.spelling.suggest.tst.TSTLookupFactory</str>
+
+        <!--
+        Define delimiters to use for splitting queries into
+        field name/field values. If several are specified, it will
+        return results using the same delimiter as in the query.
+        If no delimiter is used in the query, but a delimiter is to
+        be returned, the first delimiter specified below is used.
+        If no delimiter is specified, :'' is used.
+    -->
+    <str name=''delimiter''>:''</str>
+    <str name=''endDelimiter''>''</str>
+
+        <!--
+    Define suggesters for the fields you want to enable auto
+    completion for. Requires a target field, ie. the name of the
+    field that is sent in the query. If a source field is
+    specified, it will be used to fetch suggestions from.
+    If left unspecified, the target field will be used.
+    Several source fields can be specified.
+    If no delegate is specified at all, every field will be used
+    as target field and source field respectively.
+
+    Example:
+
+    <lst name=''delegate''>
+        <str name=''targetField''>author</str>
+        <str name=''sourceField''>author</str>
+        <str name=''sourceField''>author_ir14_auto_complete</str>
+    </lst>
+
+    The above will allow the user to get query completion for the 
+    field author and will fetch suggestions from the fields     author and author_ir14_aut_complete.
+    -->
+    <lst name=''delegate''>
+          <str name=''targetField''>name</str>
+          <str name=''sourceField''>name</str>
+          <str name=''sourceField''>name_ir14_auto_complete</str>
+    </lst>
+
+    <lst name=''delegate''>
+          <str name=''targetField''>party</str>
+          <str name=''sourceField''>party</str>
+    </lst>
+
+    <lst name=''delegate''>
+          <str name=''targetField''>birthyear</str>
+          <str name=''sourceField''>birthyear</str>
+    </lst>
+
+     <lst name=''delegate''>
+          <str name=''targetField''>block</str>
+          <str name=''sourceField''>block</str>
+     </lst>
+     
+    <float name=''threshold''>0.005</float>
+    <str name=''buildOnCommit''>true</str>
+    </lst>
+  </searchComponent>
+\end{verbatim}
+
+

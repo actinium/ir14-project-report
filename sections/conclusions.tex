@@ -1,2 +1,3 @@
 \section{Conclusions}\label{conclusions}
-blah blah blah...
+
+Creating a replacement implementation for the original Solr suggester implementation that also completes field name and completes queries beginning with field specifiers is feasible. While Solr does have a suggester implementation one can delegate most of the relevant work to, using Solr implies a number of needless complications resulting from the fact that it is often difficult to avoid the query tokenization that Solr ordinarily does. This necessitates a number of workarounds if one wants to avoid the preprocessing, such as tokenization, of the query. 
