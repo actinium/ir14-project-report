@@ -5,19 +5,16 @@ Apache Solr is the most popular enterprise search engine as of April 2014\cite{r
 
 Despite fields being such a powerful tool when searching, the query completion in Apache Solr is limited to free text queries. It is therefore of great interest to create a module for query completion of field queries. Doing so could not only increase effectiveness for advanced users, but also introduce less experienced users to using fields in their searches.
 
+
 \subsection{Problem domain}
 
 The aim of this project is to implement a module for Apache Solr that complements the current query completion in Solr so that it supports field querying. The goal is that the user should be able to get query completion for field names in the following manner:
-
 \begin{enumerate}
-\item If the user types |aut|, and there is a field called author in the schema, the module will suggest |author:()|. 
-\item If the user types |author:"Joan|, and there is a document authored by Joanne Kathleen Rowling, the module will suggest |author:"Joanne"| and |author:"Joanne Kathleen Rowling"|
+\item   If the user types |aut|, and there is a field called author in the schema, the module will suggest |author:”|. 
+\item   If the user types |author:”Joan|, and there is a document authored by Joanne Kathleen Rowling, the module will suggest |author:”Joanne| and |author:”Joanne Kathleen Rowling|
 \end{enumerate}
 
-
-The results in the examples above may vary depending on how the solr server is configured. For example, in the second example, only one of the two might be returned, depending on whether the field contents are tokenized or not. 
-
-The initial problem description also included autocompleting queries on the form  ''|author:(Joanne)|'', into ''|author:(Joanne) AND |''. However, due to how solr is designed, it does not appear possible to implement this with the approach taken in this project. Details about the limitations involved are given in the section ''Encountered Issues'' under ''Results''.
+The results in the examples above may vary depending on how the Solr server is configured. For example, in the second example, only one of the two might be returned, depending on whether the field contents are tokenized or not. 
 
 
 

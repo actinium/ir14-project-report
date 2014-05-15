@@ -1,15 +1,11 @@
 \section{Background}\label{background}
 
-The original purpose of query completion was to help people with physical disabilities improve their typing speed (Tam, C. \& Wells, D. (2009). Evaluating the Benefits of Displaying Word Prediction Lists on a Personal Digital Assistant at the Keyboard Level. Assistive Technology, 21, 105-114.). It later evolved to incorporate a lot more and today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing has autocomplete implemented (https://www.google.se/ , www.bing.com ). Popular text editors and IDEs such as Sublime Text and Eclipse also implements this feature (https://www.eclipse.org/ , http://www.sublimetext.com/).
-
-Word prediction software often include a learning aspect of the queries or words being searched for. By analysing the queries the software can statistically determine popular and unpopular search terms in order to provide more accurate predictions.
-
-The efficiency of query completion can be based on the length of the words typed compared to the length of the suggested queries. The users choice can also be taken into consideration, i.e if the user chooses to search with a suggested query or write their own after getting the suggestions.
+The original purpose of query completion was to help people with physical disabilities improve their typing speed (Tam, C. \& Wells, D. (2009). Evaluating the Benefits of Displaying Word Prediction Lists on a Personal Digital Assistant at the Keyboard Level. Assistive Technology, 21, 105-114.). It later evolved to incorporate a lot more and today it is seen almost everywhere on both the Internet and in software tools and applications. Popular search engines such as Google and Microsoft Bing (https://www.google.se/ , www.bing.com ) as well as popular text editors and IDEs such as Sublime Text and Eclipse has query completion implemented (https://www.eclipse.org/ , http://www.sublimetext.com/).
 
 \subsection{Previous work}\label{previouswork}
 
 Predicting words is not a trivial thing to do and currently there is extensive research being conducted in this field. This research can vary from implementing an efficient prediction of words to implementing a semantically consistent prediction sequence. Often it is desirable to have an implementation that is both efficient in terms of query processing and response time as well as semantically consistent predictions in order to give the user both fast and correct predictions. This is what most research papers today aims to explore with the emphasis being placed on producing semantically consistent suggestions [Qiaozhu Mei, Dengyong Zhou, and Kenneth Church. 2008. Query suggestion using hitting time. In Proceedings of the 17th ACM conference on Information and knowledge management (CIKM '08). ACM, New York, NY, USA, 469-478] 
-[Silviu Cucerzan and Ryen W. White. 2007. Query suggestion based on user landing pages. In Proceedings of the 30th annual international ACM SIGIR conference on Research and development in information retrieval (SIGIR '07). ACM, New York, NY, USA, 875-876].
+[Silviu Cucerzan and Ryen W. White. 2007. Query suggestion based on user landing pages. In Proceedings of the 30th annual international ACM SIGIR conference on Research and development in information retrieval (SIGIR '07). ACM, New York, NY, USA, 875-876]. 
 
 \subsection{Apache Solr}
 
@@ -43,8 +39,21 @@ A few things to note about the Solr implementation: First, all documents indexed
 http://localhost:8983/solr/collection1/select?q=id:SP2514N
 \end{verbatim}
 
+but the following query would not match the above document:
 
+\begin{verbatim}
+http://localhost:8983/solr/collection1/select?q=id:sp2514n
+\end{verbatim}
 
+Much of the work in setting up a Solr server thus lie in specifying sensible types for the document contents, such that the server allows the user to select the documents they are looking for. In the above for instance it might make sense to distinguish between ''SP2514N'' and ''sp2514n'' as these might refer to different documents, but not to distinguish between ''Samsung'' and ''samsung''.
+
+Solr comes with a built in suggester implementation, for instance performing a query:
+
+\begin{verbatim}
+http://localhost:8983/solr/collection1/suggest?sp
+\end{verbatim}
+
+will return suggestions consisting of all words beginning with ‘’sp’’ using word from the indexed documents. Which field to use to draw suggestions can be specified by setting a parameter in the configuration file solrconfig.xml. Thus, in principle one can retrieve suggestions from different fields with the current suggester implementation by creating multiple suggesters, one for each field, and querying these independently.
 
 
 
