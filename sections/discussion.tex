@@ -13,26 +13,9 @@ A number of symbols are considered special characters when they occur in a query
 \end{verbatim}
 
 As a consequence of how the Solr request dispatch system is implemented, a query passed to Solr will be tokenized using the above characters as delimiters (except hyphen-minus), as well as on whitespace before being passed on to system modules like a suggester.
-Consequently a sample query on the form:
-
-\begin{verbatim}
-    author:"simon
-\end{verbatim}
-
-will automatically be split into:
-\begin{verbatim}
-    ["author", "simon"]
-\end{verbatim}
+Consequently a sample query on the form: |author:"simon| will automatically be split into: |["author", "simon"]|
 before being handed over to the suggester implementation.
-Taking whitespace into account as well as a query on the form:
-
-\begin{verbatim}
-    author:"simon AND text:"foo"
-\end{verbatim}
-will automatically be split into the following:
-\begin{verbatim}
-    ["author", "simon", "AND", "text", "foo"]
-\end{verbatim}
+Taking whitespace into account as well as a query on the form: |author:"simon AND text:"foo"| will automatically be split into the following: |["author", "simon", "AND", "text", "foo"]|.
 Furthermore, while the order of the tokens seem to be preserved in practice, the documentation does not guarantee this.
 
 The specifics of the tokenization can be changed in the Solr configuration by setting the |queryAnalyzerFieldType| in |solrconfig.xml|. Contrary to what is stated in the documentation though, Solr does not seem to actually respect the value of this field when tokenizing queries passed to the relevant component. This behaviour is present as of the currently penultimate version of Solr (version 4.7.2).
@@ -43,61 +26,18 @@ Tokenization on special characters can be turned off simply by not defining any 
 
 Using |spellcheck.q| removes tokenization on special characters, but still performs whitespace delimited tokenization. There does not appear to exist any simple way to avoid this phenomenon since it is already done by the point the suggester is given tokens. Also, the Lucene query parser for the original Solr query suggester does not respect phrase queries (i.e. not doing whitespace delimited tokenization when given queries surrounded by quotation marks). Thus while there might exist ways to avoid whitespace delimited tokenization, it does not appear possible with a drop-in replacement for the query suggester currently present in Solr.
 
-To sum up, the least amount of tokenization that the drop-in replacement query suggester can get is:
-\begin{verbatim}
-    author:"simon AND text:"foo"
-\end{verbatim}
-
-being converted to:
-\begin{verbatim}
-    ["author:"simon", "AND", "text:"foo""]
-\end{verbatim}
-
-but, as already stated, the order of the tokens is not guaranteed to be preserved.
+To sum up, the least amount of tokenization that the drop-in replacement query suggester can get is: |author:"simon AND text:"foo"| being converted to: |["author:"simon", "AND", "text:"foo""]|, but, as already stated, the order of the tokens is not guaranteed to be preserved.
 
 That whitespace delimited tokenization is unavoidable does not pose any obstacles to doing single word completion, of course, but it might make a multi word query completion implementation distinctly non-trivial. 
 
 \subsubsection{Interpreting an unfinished query}
 
-An unfinished query might be interpretable in multiple ways, for instance, the query:
-\begin{verbatim}
-    author:"simon AND text:"foo
-\end{verbatim}
+An unfinished query might be interpretable in multiple ways, for instance, the query: |author:"simon AND text:"foo| can either be interpreted as the intersection of two unfinished queries or as a search for the string ''simon AND text:'' in the field author and the string foo in any field. Another interpretation is to simply ignore the fact that the user has not closes the first field query and only supply suggestions for the string ''foo'' in the field text. 
 
-can either be interpreted as the intersection of two unfinished queries or as a search for the string ''simon AND text:'' in the field author and the string foo in any field. Another interpretation is to simply ignore the fact that the user has not closes the first field query and only supply suggestions for the string ''foo'' in the field text. 
+When implementing multi-word query completion one might take the previous word into account when completing the next one. E.g. when completing the query: |author:"simon s| we might want to give priority to |author:"simon stenström"| over for instance |author:"simon simon"|.
 
-When implementing multi-word query completion one might take the previous word into account when completing the next one. E.g. when completing the query:
-\begin{verbatim}
-    author:"simon s
-\end{verbatim}
-
-we might want to give priority to
-\begin{verbatim}
-    author:"simon stenström"
-\end{verbatim}
-or
-\begin{verbatim}
-    author:"simon sundberg"
-\end{verbatim}
-over for instance
-\begin{verbatim}
-    author:"simon simon"
-\end{verbatim}
 This can in general be done using n-grams, but to our knowledge there are no tools in Solr for doing such tokenization\footnote{Note that the n-gram feature present in Solr is conceptually distinct from what we want here: it performs searches on letter n-grams which is useful for non-wordspaced languages like Chinese. What we require is word n-grams.}, and implementing this would be far outside the scope of this project. In the particular case, however, when for instance "Simon Stenström" is an actual value of the field "author" then one can do this kind of full field content completion quite simply by changing the type of the field "author" to some string based type that does not do whitespace tokenization (a better solution for the |SuggesterMK2| is to delegate to two fields that use different tokenization, which would yield both word and full text completion. Solr can be configured to copy field contents to other fields at indexing, by using so called copy fields, which means that the documents do not have to be alterated.).
-However particular care must be exercised when considering what should happen when we attempt to query complete on a query on the form:
-
-\begin{verbatim}
-    author:"simon s
-\end{verbatim}
-as opposed to:
-\begin{verbatim}
-    author:"sim
-\end{verbatim}
-since the second query will readily be completed into either "simon" or "simon stenström" depending on the type of the field author, but the first will automatically be split into:
-\begin{verbatim}
-    [author:"simon, s]
-\end{verbatim}
-before we get our hands on it. We can of course disregard the second token and simply give suggestions on the first one, but then would also get completions like "simon lundgren".
+However particular care must be exercised when considering what should happen when we attempt to query complete on a query on the form: |author:"simon s| as opposed to: |author:"sim| since the second query will readily be completed into either "simon" or "simon stenström" depending on the type of the field author, but the first will automatically be split into: |[author:"simon, s]| before we get our hands on it. We can of course disregard the second token and simply give suggestions on the first one, but then would also get completions like ''simon lundgren''.
 
 In our implementation, we join the two tokens. This is based on the assumption that the order of the tokens has not been changed by the query parser, which as mentioned before seems to be the case in practice but is not guaranteed. 
 
@@ -121,24 +61,14 @@ In this section, a few unimplemented ideas are mentioned and difficulties with i
 
 \subsubsection{Intersection queries}
 
-A good suggester iteratively builds a query, taking all previous text into account. This requires the suggester to construct queries along the way and then apply new filters to this original query as they are added. For example, for the query:
-\begin{verbatim}
-block:"Left" AND name:"p
-\end{verbatim}
-we might only want to show name suggestions for left-wing members of parliament, otherwise we would actually suggest queries for which the search result would be empty.
+A good suggester iteratively builds a query, taking all previous text into account. This requires the suggester to construct queries along the way and then apply new filters to this original query as they are added. For example, for the query: |block:"Left" AND name:"p| we might only want to show name suggestions for left-wing members of parliament, otherwise we would actually suggest queries for which the search result would be empty.
 However the original suggester implementation does not support intersection, and so we would have to manually remove inapplicable suggestion results (i.e. names of non-left-wing members of parliament in the above example) and adjusting the ranking of the results, as the ranking depends on the number of occurrences of the suggested words in the results. While this is most likely feasible, we consider this to fall well beyond the scope of this project.
 
 \subsubsection{Query completion for AND and OR}
 
 In Solr, the terms AND and OR can be used for intersection and union queries, respectively. 
-A nice feature would be to support query completion for these terms so that when the user enters a whitespace after a query, the suggester gives suggestions for these terms, like the following example:
-\begin{verbatim}
-    author:"simon" 
-\end{verbatim}
-which would be completed into:
-\begin{verbatim}
-    author:"simon" AND
-\end{verbatim}
+A nice feature would be to support query completion for these terms so that when the user enters a whitespace after a query, the suggester gives suggestions for these terms, like the following example: |author:"simon" | which would be completed into: |author:"simon" AND|.
+
 Since Solr automatically strips trailing and leading whitespace, this seems hard to do in the backend. One can easily do these kinds of query completions in the frontend however, and so we might question the need for having backend implementation for these in the first place.
 
 
