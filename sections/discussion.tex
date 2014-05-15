@@ -15,7 +15,7 @@ before being handed over to the suggester implementation.
 Taking whitespace into account as well as a query on the form: |author:"simon AND text:"foo"| will automatically be split into |[author, simon, AND, text, foo]|.
 Furthermore, while the order of the tokens seem to be preserved in practice, the documentation does not guarantee this.
 
-The specifics of tokenization should be configurable by setting the |queryAnalyzerFieldType| in |solrconfig.xml|. Contrary to what is stated in the documentation however, Solr does not seem to actually respect the value of this field when tokenizing queries. This behaviour is present as of the currently penultimate version of Solr (version 4.7.2).
+The specifics of tokenization should be configurable by setting the parameter |queryAnalyzerFieldType| in |solrconfig.xml|. Contrary to what is stated in the documentation however, Solr does not seem to actually respect the value of this field when tokenizing queries. This behaviour is present as of the currently penultimate version of Solr (version 4.7.2).
 
 This particular issue can be circumvented by creating a custom parameter or by piggybacking on the Solr spellchecker implementation and using its custom |spellcheck.q| parameter instead (as the original query suggester implementation already does).
 This parameter uses a tokenizer based on the type of the first defined parameter of name "field" in the definition of the component.\cite{FIELDTYPE}

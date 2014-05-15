@@ -22,7 +22,7 @@ The |SuggesterMK2| implementation uses the delegation pattern\cite{DELEGATE} in 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{img/delegation.png}
-    \caption{Illustration of the delegation used by SuggesterMK2. The suggester will give suggestions drawn from the fields author and author\_fulltext for the field author, and from desc and desc\_case\_sensitive for the field desc.}
+    \caption{\footnotesize{Illustration of the delegation used by SuggesterMK2. The suggester will give suggestions drawn from the fields author and author\_fulltext for the field author, and from desc and desc\_case\_sensitive for the field desc.}}
     \label{fig:delegation}
 \end{figure}
 
@@ -50,6 +50,13 @@ The results of a query are returned in descending order of estimated relevance. 
 \subsubsection{Testing}
 
 A simple frontend has been implemented to act as a tool for debugging and demoing the project. It uses JSON requests and responses to interact with the |/suggest| and |/select| features of the Solr server.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/frontend.png}
+    \caption{\footnotesize{A query performed through the frontend, with query completions visible}}
+    \label{fig:frontend}
+\end{figure}
 
 Testing was primarily done using the Solr Admin console and the frontend.
 In the early stages of development, test data provided by Solr was used. This was later replaced with a larger set of documents containing fields for names, party affiliation and quotes from members of the Swedish parliament. A number of queries were used to test that the suggester worked as expected.

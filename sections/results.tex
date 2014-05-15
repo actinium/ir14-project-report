@@ -1,5 +1,33 @@
 \section{Results}\label{results}
 
-The query completion module implements the intended functionality and is capable of suggesting fields and values within specified fields. 
+As can be seen in the table below, the query completion module implements the intended functionality and is capable of suggesting field names and values within specified fields. It is capable of suggesting completions for multi-word values, such as suggesting |name:"désirée pethrus| for the query |name:"désirée p|. It also retains the functionality of the built-in suggester.\\
 
-See Appendix for the sample queries used to evaluate the module. The results from these queries matches the expected result.
+
+\begin{table}[h!]
+\begin{tabular}{ r | l}
+    Query & Completion suggestions \\    
+    \hline                    
+    & \\
+  |n| & |name:"| \\
+      & |nilsson| \\
+      & |näringsminister| \\
+      & |näringsminister annie lööf| \\
+      & \\
+    \hline
+    & \\
+      |name:"d| & |name:"désirée| \\
+            & |name:"david lång| \\
+            & \\
+    \hline
+    & \\
+    |name:"désirée p| & |name:"désirée pethrus| \\
+    & \\
+    \hline
+    & \\
+    |name:"foo" AND name:"d| & |name:"foo" AND name:"désirée| \\
+    & \\
+\end{tabular}\\\\
+    \caption{\footnotesize{Queries and the corresponding completions given by the suggester}}
+\end{table}
+
+\noindent See Appendix for the full set of queries used to evaluate the module, with corresponding suggestions.
