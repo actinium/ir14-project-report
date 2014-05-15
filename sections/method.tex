@@ -17,22 +17,22 @@ The rationale for these seemingly arbitrary decisions will be stated explicitly 
 
 \subsubsection{Delegation}
 
-The |SuggesterMK2| implementation uses the delegation pattern\cite{DELEGATE} in order to reuse the original suggester implementation as much as possible. Reusing the original Suggester class means that we can use the original implementations query suggestion implementation, as well as its loading and reloading implementations, all of which we can assume work and would be distinctly tricky to implement from scratch.
+The |SuggesterMK2| implementation uses the delegation pattern\cite{DELEGATE} in order to reuse the original suggester implementation as much as possible. Reusing the original Suggester class means that we can use its query suggestion implementation, as well as its loading and reloading implementations, all of which we can assume work and would be distinctly tricky to implement from scratch.
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.8\textwidth]{img/delegation.png}
-    \caption{Illustration of the delegation used by SuggesterMK2. The suggester will give suggestions drawn from author and author\_fulltext for the field author, and suggestions from the fields desc and desc\_case\_sensitive for the field desc.}
+    \caption{Illustration of the delegation used by SuggesterMK2. The suggester will give suggestions drawn from the fields author and author\_fulltext for the field author, and from desc and desc\_case\_sensitive for the field desc.}
     \label{fig:delegation}
 \end{figure}
 
-Let us for instance say that we configure the system to give suggestions for the field |author| using the contents from the fields |author| and |author_exact| the first of which being tokenized on whitespace, and the second being untokenized. All we have to do then, using delegation, is to construct a |Suggester| object for each field |author| and |author_exact|, query each of these, and then combine the results, merging results as needed if the results overlap. In our implementation, configuring the suggester to return results as in the diagram can be done by adding the following to the suggester configuration in |solrconfig.xml|.
+Let us for instance say that we configure the system to give suggestions for the field |author| using the contents from the fields |author| and |author_exact|, the first of which being tokenized on whitespace, and the second being untokenized. All we have to do then, using delegation, is to construct a |Suggester| object for |author| and |author_exact|, query each of these, and then combine the results, merging results as needed if the results overlap. In our implementation, configuring the suggester to return results as in the diagram can be done by adding the following to the suggester configuration in |solrconfig.xml|:
 
 \begin{verbatim}
-<lst name=''delegate''>
-  <str name=''targetField''>author</str>
-  <str name=''sourceField''>author</str>
-  <str name=''sourceField''>author_fulltext</str>
+<lst name="delegate">
+  <str name="targetField">author</str>
+  <str name="sourceField">author</str>
+  <str name="sourceField">author_fulltext</str>
 </lst>
 \end{verbatim}
 
@@ -47,11 +47,9 @@ For the implementation of the SuggesterMK2, see \cite{GITHUBPROJ}.
 
 The results of a query are returned in a given order. Field names are given priority over field contents, while field contents and standard results are both sorted based on number of occurrences. For example of this see section \ref{results}.
 
-\subsubsection{Frontend}
+\subsubsection{Testing}
 
 A simple frontend has been implemented to act as a tool for debugging and demoing the project. It uses JSON requests and responses to interact with the ''suggest'' and ''select'' features of the Solr server.
 
-\subsubsection{Testing}
-
-Testing was primarily done using the Solr Admin console and our own frontend.
+Testing was primarily done using the Solr Admin console and the frontend.
 In the early stages of development, test data provided by Solr was used. This was replaced with a larger test set of documents containing fields for names, party affiliation and quotes from members of Swedish parliament later on. A number of queries were used to test that the suggester performed as expected. These queries, as well as the result of the tests for the final version, can be found in the following section. 
